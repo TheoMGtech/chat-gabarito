@@ -29,8 +29,8 @@ Instale flask_chat com pip
 
 ```sh
     # Clone o repositório
-    git clone https://github.com/seu-usuario/seu-repositorio.git
-    cd seu-repositorio
+    git clone https://github.com/TheoMGtech/chat-gabarito.git
+    cd chat-gabarito
 
     # Crie um ambiente virtual 
     python -m venv venv
