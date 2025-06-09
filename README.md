@@ -32,9 +32,9 @@ Instale flask-chat com pip
     git clone https://github.com/seu-usuario/seu-repositorio.git
     cd seu-repositorio
 
-    # Crie um ambiente virtual (opcional, mas recomendado)
+    # Crie um ambiente virtual 
     python -m venv venv
-    source venv/bin/activate  # No Windows use `venv\Scripts\activate`
+    source venv\Scripts\activate
 
     # Instale as dependências
     pip install -r requirements.txt
@@ -45,7 +45,7 @@ Instale flask-chat com pip
 
 ```bash
     # Inicie o servidor Flask
-    python app.py
+    python app.py # Ou flask run 
 ```
 ## Como funciona
 1. O usuário se conecta a um atendente ou usuário através da interface de chat.
