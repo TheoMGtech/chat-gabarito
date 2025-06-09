@@ -25,7 +25,7 @@ Este projeto é um aplicativo web desenvolvido com Flask, LangChain e a API grat
 - [Flask-SocketIO](https://flask-socketio.readthedocs.io/en/latest/) (Comunicação em tempo real)
 ## Instalação
 
-Instale flask-chat com pip
+Instale flask_chat com pip
 
 ```sh
     # Clone o repositório
