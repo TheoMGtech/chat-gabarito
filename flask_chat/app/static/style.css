@@ -271,3 +271,19 @@ form {
 #toggle-judge {
     margin-left: auto;
 }
+
+/* Estilo para a marcação 'Gerado com IA' */
+.ai-marker {
+  font-size: 0.75em;
+  color: #555;
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  opacity: 0.9;
+  font-style: italic;
+}
+
+.ai-marker svg {
+    color: #1a73e8;
+}

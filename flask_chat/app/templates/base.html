@@ -5,172 +5,200 @@
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
+<body data-role="{{ role }}">
     <div class="chat-container">
         <header>
             <h1>{% block cabecalho %}{% endblock %}</h1>
         </header>
 
-        <div id="historico">
-            {% for linha in historico %}
-                {{ linha|safe }}
-            {% endfor %}
-        </div>
+        <div id="historico"></div>
 
         {% block formulario %}
-        <form id="chat-form" method="POST">
+        <form id="chat-form">
+            {% if role == 'usuario' %}
             <input type="hidden" name="ia_enabled" id="ia_enabled" value="off">
             <input type="hidden" name="audio_enabled" id="audio_enabled" value="off">
             <input type="hidden" name="judge_enabled" id="judge_enabled" value="off">
 
-
             <div class="toggle-controls">
                 <button type="button" id="toggle-ia" class="toggle-button" title="Responder com IA">
                     <svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Gemini</title><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12"></path></svg>
-                    Responder com IA
+                    Resposta com IA
                 </button>
                 <button type="button" id="toggle-audio" class="toggle-button" title="Responder com Áudio" disabled>
                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 3c-1.1 0-2 .9-2 2v6c0 1.1.9 2 2 2s2-.9 2-2V5c0-1.1-.9-2-2-2zm6.3 7c0 3.1-2.53 5.6-5.6 5.6S6.7 13.1 6.7 10H5c0 3.41 2.72 6.23 6 6.72V21h2v-4.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
                     Áudio
                 </button>
                 <button type="button" id="toggle-judge" class="toggle-button" title="Habilitar Juiz" disabled>
-                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                     <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
                     Juiz
                 </button>
             </div>
+            {% endif %}
 
             <div class="message-bar">
                 <input type="text" name="mensagem" id="campoMensagem" placeholder="Digite sua mensagem" required>
                 <div class="button-group">
                     <button type="submit" name="enviar">Enviar</button>
-                    <button type="submit" name="encerrar" onclick="setRequisito(false)">Encerrar</button>
+                    <button type="button" id="encerrar-btn" name="encerrar">Encerrar</button>
                 </div>
             </div>
         </form>
         {% endblock %}
     </div>
 
-    <script>
-      function setRequisito(ativo) {
-        document.getElementById("campoMensagem").required = ativo;
-      }
-
-      function validarFormulario(form) {
-        return true;
-      }
-
-      function formatMessage(message) {
-          const regex = /\[(.*?)\] \[(.*?)\] (.*)/;
-          const match = message.match(regex);
-
-          if (match) {
-              const timestamp = match[1];
-              const sender = match[2];
-              const content = match[3];
-              let senderClass = '';
-
-              if (sender === 'USUÁRIO') {
-                  senderClass = 'user-message';
-              } else if (sender === 'ATENDENTE' || sender === 'GEMINI') {
-                  senderClass = 'attendant-message';
-              } else if (sender === 'SISTEMA') {
-                  senderClass = 'system-message';
-              } else if (sender === 'JUIZ') {
-                  senderClass = 'judge-message';
-              }
-
-              return `<div class="message ${senderClass}">
-                          ${content}
-                          <span class="timestamp">${timestamp}</span>
-                      </div>`;
-          }
-          return message;
-      }
-
-    // NOVO SCRIPT PARA OS BOTÕES DE TOGGLE
-    document.addEventListener("DOMContentLoaded", function() {
-        const toggleIaButton = document.getElementById("toggle-ia");
-        const iaEnabledInput = document.getElementById("ia_enabled");
-        
-        const toggleAudioButton = document.getElementById("toggle-audio");
-        const audioEnabledInput = document.getElementById("audio_enabled");
-
-        const toggleJudgeButton = document.getElementById("toggle-judge");
-        const judgeEnabledInput = document.getElementById("judge_enabled");
-
-        // Lógica para o botão de IA
-        toggleIaButton.addEventListener("click", () => {
-            const isIaOn = toggleIaButton.classList.toggle("active");
-            iaEnabledInput.value = isIaOn ? "on" : "off";
-
-            if (isIaOn) {
-                toggleAudioButton.disabled = false;
-                toggleJudgeButton.disabled = false;
-            } else {
-                // Se desligar a IA, desliga e desabilita os outros botões
-                toggleAudioButton.classList.remove("active");
-                audioEnabledInput.value = "off";
-                toggleAudioButton.disabled = true;
-
-                toggleJudgeButton.classList.remove("active");
-                judgeEnabledInput.value = "off";
-                toggleJudgeButton.disabled = true;
-            }
-        });
-
-        // Lógica para o botão de Áudio
-        toggleAudioButton.addEventListener("click", () => {
-            if (!toggleAudioButton.disabled) {
-                const isAudioOn = toggleAudioButton.classList.toggle("active");
-                audioEnabledInput.value = isAudioOn ? "on" : "off";
-            }
-        });
-
-        // Lógica para o botão do Juiz
-        toggleJudgeButton.addEventListener("click", () => {
-            if (!toggleJudgeButton.disabled) {
-                const isJudgeOn = toggleJudgeButton.classList.toggle("active");
-                judgeEnabledInput.value = isJudgeOn ? "on" : "off";
-            }
-        });
-
-        const historico = document.getElementById("historico");
-        const messages = historico.innerHTML.split('\n').filter(m => m.trim() !== '');
-        historico.innerHTML = messages.map(formatMessage).join('');
-        historico.scrollTop = historico.scrollHeight;
-      });
-
-      document.addEventListener("DOMContentLoaded", function() {
-        const historico = document.getElementById("historico");
-        const messages = historico.innerHTML.split('\n');
-        historico.innerHTML = messages.map(formatMessage).join('');
-        historico.scrollTop = historico.scrollHeight;
-      });
-
-      const socket = io();
-      socket.on("nova_mensagem", data => {
-          const historico = document.getElementById("historico");
-          historico.innerHTML += formatMessage(data.html);
-          historico.scrollTop = historico.scrollHeight;
-      });
-
-      const campo = document.getElementById("campoMensagem");
-      window.onload = () => campo.focus();
-      document.getElementById("chat-form").addEventListener("submit", () => {
-        setTimeout(() => {
-          campo.value = "";
-          campo.focus();
-        }, 100);
-      });
+    <script type="application/json" id="historico-data">
+        {{ historico|tojson }}
     </script>
-    {% if audio_base64 %}
+
     <script>
-        const audioBase64 = "{{ audio_base64 }}";
-        const audioElement = new Audio("data:audio/mp3;base64," + audioBase64);
-        setTimeout(() => {
-            audioElement.play();
-        }, 1000);
+        function formatMessage(message) {
+            const viewerRole = document.body.dataset.role;
+            const regex = /\[(.*?)\] \[(.*?)\] (.*)/s;
+            const match = message.match(regex);
+            
+            if (match) {
+                const timestamp = match[1];
+                const sender = match[2];
+                let content = match[3];
+                let senderClass = '';
+
+                // --- INÍCIO DA ALTERAÇÃO ---
+                // Adicionada a condição para o atendente ver a mensagem da IA como sua.
+                if (
+                    (viewerRole === 'usuario' && sender === 'USUÁRIO') ||
+                    (viewerRole === 'atendente' && sender === 'ATENDENTE') ||
+                    (viewerRole === 'atendente' && sender === 'GEMINI') 
+                ) {
+                    senderClass = 'user-message'; // Mensagens na direita (próprias)
+                } 
+                // --- FIM DA ALTERAÇÃO ---
+                
+                else if (sender === 'SISTEMA' || sender === 'JUIZ') {
+                    senderClass = 'system-message';
+                } else {
+                    senderClass = 'attendant-message'; // Mensagens na esquerda (dos outros)
+                }
+
+                let aiMarker = '';
+                if (sender === 'GEMINI') {
+                    aiMarker = `<div class="ai-marker">Gerado com IA <svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Gemini</title><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12"></path></svg></div>`;
+                }
+
+                return `<div class="message ${senderClass}">
+                            <div>${content}</div>
+                            ${aiMarker}
+                            <span class="timestamp">${timestamp}</span>
+                        </div>`;
+            }
+            return '';
+        }
+
+        function playAudio(audioBase64) {
+            if (audioBase64) {
+                const audioElement = new Audio("data:audio/mp3;base64," + audioBase64);
+                audioElement.play().catch(e => console.error("Erro ao tocar áudio:", e));
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            let historicoArray = [];
+            try {
+                const historicoDataElement = document.getElementById('historico-data');
+                const historicoJSON = historicoDataElement.textContent;
+                historicoArray = JSON.parse(historicoJSON);
+            } catch (e) {
+                console.error("Falha crítica ao carregar dados do histórico:", e);
+            }
+            
+            const historicoDiv = document.getElementById("historico");
+            const campoMensagem = document.getElementById("campoMensagem");
+            const chatForm = document.getElementById("chat-form");
+            const encerrarBtn = document.getElementById("encerrar-btn");
+            const postUrl = "{{ post_url }}";
+
+            if (historicoArray && Array.isArray(historicoArray)) {
+                historicoDiv.innerHTML = historicoArray.map(formatMessage).join('');
+                historicoDiv.scrollTop = historicoDiv.scrollHeight;
+            }
+
+            campoMensagem.focus();
+
+            chatForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+                if (!campoMensagem.value.trim()) return;
+                const formData = new FormData(chatForm);
+                fetch(postUrl, {
+                    method: "POST",
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success" && data.audio_base64) {
+                        playAudio(data.audio_base64);
+                    }
+                })
+                .catch(error => console.error("Erro na requisição:", error));
+                campoMensagem.value = "";
+                campoMensagem.focus();
+            });
+
+            encerrarBtn.addEventListener("click", function() {
+                fetch("{{ url_for('chat.encerrar_sessao') }}")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        alert("Sessão encerrada. Esta janela será fechada.");
+                        window.close();
+                    }
+                });
+            });
+
+            const socket = io();
+            socket.on("nova_mensagem", data => {
+                const novaLinhaHTML = formatMessage(data.html);
+                if (novaLinhaHTML) {
+                    historicoDiv.innerHTML += novaLinhaHTML;
+                    historicoDiv.scrollTop = historicoDiv.scrollHeight;
+                }
+            });
+
+            if(document.body.dataset.role === 'usuario') {
+                const toggleIaButton = document.getElementById("toggle-ia");
+                const iaEnabledInput = document.getElementById("ia_enabled");
+                const toggleAudioButton = document.getElementById("toggle-audio");
+                const audioEnabledInput = document.getElementById("audio_enabled");
+                const toggleJudgeButton = document.getElementById("toggle-judge");
+                const judgeEnabledInput = document.getElementById("judge_enabled");
+                
+                toggleIaButton.addEventListener("click", () => {
+                    const isIaOn = toggleIaButton.classList.toggle("active");
+                    iaEnabledInput.value = isIaOn ? "on" : "off";
+                    toggleAudioButton.disabled = !isIaOn;
+                    toggleJudgeButton.disabled = !isIaOn;
+                    if (!isIaOn) {
+                        toggleAudioButton.classList.remove("active");
+                        audioEnabledInput.value = "off";
+                        toggleJudgeButton.classList.remove("active");
+                        judgeEnabledInput.value = "off";
+                    }
+                });
+
+                toggleAudioButton.addEventListener("click", () => {
+                    if (!toggleAudioButton.disabled) {
+                        toggleAudioButton.classList.toggle("active");
+                        audioEnabledInput.value = toggleAudioButton.classList.contains("active") ? "on" : "off";
+                    }
+                });
+
+                toggleJudgeButton.addEventListener("click", () => {
+                    if (!toggleJudgeButton.disabled) {
+                        toggleJudgeButton.classList.toggle("active");
+                        judgeEnabledInput.value = toggleJudgeButton.classList.contains("active") ? "on" : "off";
+                    }
+                });
+            }
+        });
     </script>
-    {% endif %}
 </body>
 </html>
