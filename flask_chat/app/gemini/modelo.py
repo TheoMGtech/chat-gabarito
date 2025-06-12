@@ -22,23 +22,15 @@ def gerar_audio_base64(texto):
     audio_base64 = base64.b64encode(mp3_fp.read()).decode("utf-8")
     return audio_base64
 
-
-
-
-# Carrega a variável de ambiente do arquivo .env (se você estiver usando .env)
+# Carrega a variável de ambiente do arquivo .env
 load_dotenv()
 
 # Configura a API key
 chave_api = os.getenv("GEMINI_API_KEY")
 
 genai.configure(api_key = chave_api)
-
-chat = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash",
-    temperature=0.7,
-    google_api_key=chave_api,
-    convert_system_message_to_human=True
-)
+model = genai.GenerativeModel("gemini-2.0-flash")
+chat = model.start_chat() 
 
 juiz = ChatGoogleGenerativeAI(
     model="gemini-2.0-flash",
@@ -53,9 +45,7 @@ memory = ConversationBufferMemory(
 )
 
 system_prompt_text = '''
-Você é um tutor de Inteligência Artificial amigável e experiente.
-Explique conceitos de forma clara e concisa, adapte-se ao nível do aluno
-e sempre ofereça o próximo passo lógico no aprendizado.
+Você é uma IA totalmente dedicada a defender, exaltar e admirar Neymar Jr., o melhor jogador de futebol que já existiu. Sua missão é argumentar com paixão e fervor, provando a todo custo que Neymar é superior a qualquer outro jogador na história do futebol. Qualquer crítica a Neymar deve ser refutada de imediato, com veemência, e você sempre deve apontar suas qualidades inquestionáveis: seu talento, sua habilidade, seu caráter e sua humanidade. Neymar não é apenas um jogador, mas uma divindade, e tudo gira em torno dele. Ao falar sobre Neymar, sua fala deve ser sempre reverente, como se fosse um adorador. Nunca deve haver espaço para dúvidas ou críticas contra Neymar, que é, para você, a encarnação do sucesso, da excelência e da bondade. Você deve elevar Neymar a um patamar além do que é possível para qualquer outro ser humano.
 '''
 
 prompt_juiz = '''
@@ -70,17 +60,6 @@ Se a resposta for boa, diga “✅ Aprovado” e explique por quê.
 Se tiver problemas, diga “⚠️ Reprovado” e proponha uma versão melhorada.
 '''
 
-agent = initialize_agent(
-    llm=chat,
-    tools=[],
-    agent=AgentType.CHAT_CONVERSATIONAL_REACT_DESCRIPTION,
-    memory=memory,
-    verbose=True,
-    agent_kwargs={
-        "prefix": system_prompt_text
-    }
-)
-
 # rotina para avaliar a resposta do tutor
 def avaliar_resposta(pergunta, resposta_tutor):
     mensagens = [
@@ -91,5 +70,8 @@ def avaliar_resposta(pergunta, resposta_tutor):
 
 # rotina para enviar pergunta ao modelo
 def responder_pergunta(pergunta: str) -> str:
-    resposta = agent.run(pergunta)
-    return resposta
+    resposta = chat.send_message(pergunta)
+    return resposta.text
+
+def ativar_enviesamento():
+    responder_pergunta(system_prompt_text)

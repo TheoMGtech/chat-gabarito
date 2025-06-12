@@ -5,12 +5,14 @@
   <title>Central de Chat</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-  <h1>Simulador de Chat</h1>
-
-  <div class="button-group">
-    <button onclick="abrirJanela('usuario')">Abrir Usuário (nova janela)</button>
-    <button onclick="abrirJanela('atendente')">Abrir Atendente (nova janela)</button>
+<body class="index-page">
+  <div class="welcome-container">
+    <h1>Simulador de Chat</h1>
+    <p>Escolha uma visualização para iniciar</p>
+    <div class="button-group">
+      <button onclick="abrirJanela('usuario')">Entrar como Usuário</button>
+      <button onclick="abrirJanela('atendente')">Entrar como Atendente</button>
+    </div>
   </div>
 
   <script>
@@ -18,7 +20,7 @@
       window.open(
         '/' + papel,
         papel + '_janela',
-        'width=500,height=700,resizable=yes,scrollbars=yes'
+        'width=600,height=800,resizable=yes,scrollbars=yes'
       );
     }
   </script>

@@ -1,60 +1,273 @@
 /* style.css */
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f0f0f0;
-  padding: 20px;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  background-color: #e5ddd5; /* WhatsApp background color */
+  padding: 0;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
-h1, h2 {
-  color: #333;
+.chat-container {
+  width: 100%;
+  max-width: 800px;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f0f0;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+header {
+  background-color: #075e54;
+  color: white;
+  padding: 15px;
   text-align: center;
 }
 
+header h1 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+#historico {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background-color: #e5ddd5;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.message {
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 70%;
+  line-height: 1.4;
+  font-size: 1em;
+  position: relative;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.user-message {
+  background-color: #dcf8c6;
+  align-self: flex-end;
+  border-bottom-right-radius: 5px;
+}
+
+.attendant-message {
+  background-color: #fff;
+  align-self: flex-start;
+  border-bottom-left-radius: 5px;
+}
+
+.system-message {
+    background-color: #f2f2f2;
+    color: #888;
+    align-self: center;
+    text-align: center;
+    font-size: 0.8em;
+    font-style: italic;
+}
+
+.judge-message {
+    background-color: #fff5c4;
+    align-self: center;
+    font-size: 0.9em;
+    width: 80%;
+    border-left: 4px solid #ffc107;
+}
+
+.timestamp {
+  font-size: 0.75em;
+  color: #999;
+  display: block;
+  margin-top: 5px;
+}
+
 form {
-  max-width: 800px;
-  margin: 0 auto 20px auto;
+  display: flex;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-top: 1px solid #ddd;
 }
 
 input[type="text"] {
-  width: 100%;
+  flex: 1;
   padding: 12px;
-  margin-bottom: 10px;
   border: 1px solid #ccc;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
+  border-radius: 20px;
+  font-size: 1em;
+  margin-right: 10px;
 }
 
-/* Agrupamento dos botões lado a lado */
 .button-group {
   display: flex;
-  justify-content: center;
   gap: 10px;
 }
 
 button {
   padding: 10px 20px;
   border: none;
-  border-radius: 8px;
-  background-color: #007BFF;
+  border-radius: 20px;
+  background-color: #128c7e;
   color: white;
-  font-size: 16px;
+  font-size: 1em;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #075e54;
 }
 
-pre#historico {
+button[name="encerrar"] {
+    background-color: #d9534f;
+}
+
+button[name="encerrar"]:hover {
+    background-color: #c9302c;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilos para a Página Inicial */
+.index-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f0f2f5;
+  text-align: center;
+}
+
+.welcome-container {
   background-color: white;
-  border: 1px solid #ccc;
-  padding: 15px;
-  height: 300px;
-  overflow-y: scroll;
-  max-width: 800px;
-  margin: 0 auto;
-  font-family: sans-serif;  /* Troca monospace por sans-serif */
-  white-space: pre-line;    /* Agora ignora múltiplos espaços e mantém quebras de linha */
+  padding: 50px;
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  animation: fadeInZoom 0.6s ease-in-out;
 }
 
+.welcome-container h1 {
+  margin-bottom: 10px;
+  color: #333;
+  font-size: 2.2em;
+}
+
+.welcome-container p {
+  color: #666;
+  font-size: 1.1em;
+  margin-bottom: 35px;
+}
+
+.welcome-container .button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.welcome-container button {
+  padding: 15px 25px;
+  border: none;
+  border-radius: 8px;
+  background-color: #007BFF;
+  color: white;
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.welcome-container button:hover {
+  background-color: #0056b3;
+  transform: translateY(-3px);
+}
+
+@keyframes fadeInZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Estilos para os novos botões de Toggle */
+.toggle-button {
+  background-color: #6c757d; /* Cinza para estado 'off' */
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 15px;
+}
+
+.toggle-button .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.toggle-button.active {
+  background-color: #28a745; /* Verde para estado 'on' */
+}
+
+.toggle-button:disabled {
+  background-color: #6c757d;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Ajuste no estilo do formulário para acomodar a nova estrutura */
+form {
+    display: block; /* Remove o flex e permite que os elementos fiquem em blocos */
+    padding: 10px;
+    background-color: #f0f0f0;
+    border-top: 1px solid #ddd;
+}
+
+/* Estilo para a nova área dos botões de toggle */
+.toggle-controls {
+    display: flex;
+    justify-content: flex-start; /* Alinha os botões à esquerda */
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 0 5px; /* Pequeno padding para alinhar com a barra de mensagem */
+}
+
+/* Estilo para a barra principal que contém o input e os botões de enviar/encerrar */
+.message-bar {
+    display: flex;
+    align-items: center;
+}
+
+/* Garante que o input ocupe o espaço correto */
+.message-bar input[type="text"] {
+    flex: 1;
+    margin-right: 10px;
+}
+
+/* Ajuste no container dos toggles para separar os botões */
+.toggle-controls {
+    justify-content: flex-start; /* Garante que os botões da esquerda fiquem juntos */
+}
+
+/* Regra para empurrar o botão do Juiz para a direita */
+#toggle-judge {
+    margin-left: auto;
+}
