@@ -1,2 +1,4 @@
 flask_chat/.env
 flask_chat/.venv
+__pycache__/
+*.pyc
