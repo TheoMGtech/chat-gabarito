@@ -1,81 +1,96 @@
+# 💬 Chat com Assistente de IA
 
-# 🧠 Aplicativo Web de Atendimento com IA
+E aí\! Este é um projeto de chat que desenvolvemos para o 2º ano do nosso curso técnico em Desenvolvimento de Sistemas. A aplicação simula uma conversa em tempo real entre um **usuário** e um **atendente**, mas com um toque especial: uma Inteligência Artificial (Google Gemini) que pode entrar na conversa para tirar dúvidas, gerar respostas em áudio e ter suas próprias respostas avaliadas por um "Juiz" de IA.
 
-Este projeto é um aplicativo web desenvolvido com Flask, LangChain e a API gratuita do Gemini, que conecta um usuário e um atendente em tempo real. Ele possui um assistente inteligente que responde quando o usuário digita o comando especial `#Chat`, além de uma funcionalidade para converter respostas em áudio usando `pyttsx3` e `socketio`.
-## Funcionalidades
+## 🚀 Teste ao Vivo
 
-- Conexão em tempo real entre o usuário e o atendente
+Acesse a versão da aplicação publicada no Render:
 
-- Comando especial `#Chat` ativa a resposta da IA Gemini
+**[https://chat-gabarito.onrender.com/](https://chat-gabarito.onrender.com/)**
 
-- Sistema de juiz que valida ou corrige a resposta da IA
+## ✨ Funcionalidades Principais
 
-- Botão "Ativar Áudio" converte a resposta da IA em fala com `Pyttsx3`
+  * **Chat em Tempo Real**: Comunicação instantânea entre as janelas do usuário e do atendente usando WebSockets.
+  * **Assistente com IA**: Ao clicar no botão "Resposta com IA", o usuário pode fazer perguntas que são respondidas pelo modelo Gemini do Google.
+  * **Respostas em Áudio**: O usuário pode optar por receber a resposta da IA como uma mensagem de áudio interativa, similar ao WhatsApp.
+  * **Juiz de IA**: Um segundo modelo de IA avalia a qualidade e precisão das respostas do assistente principal, aprovando-as ou sugerindo melhorias.
+  * **Interface Moderna**: Layout inspirado em aplicativos de mensagem populares, com o histórico de chat sendo atualizado dinamicamente.
 
-- Comunicação em tempo real com `flask-socketio`
-## Tecnologias Utilizadas
-- [Flask](https://flask.palletsprojects.com/)
+## 🛠️ Tecnologias Utilizadas
 
-- [LangChain](https://www.langchain.com/)
+  * **Backend**: Python, Flask, Flask-SocketIO
+  * **Inteligência Artificial**: LangChain com Google Gemini
+  * **Conversão de Texto em Áudio**: Google Cloud Text-to-Speech API
+  * **Frontend**: HTML, CSS, JavaScript
+  * **Deploy**: Render, Gunicorn, Docker
 
-- [API Gemini](https://ai.google.dev/) (versão gratuita)
+## 💻 Como Rodar o Projeto Localmente
 
-- [Pyttsx3](https://pyttsx3.readthedocs.io/en/latest/) (Síntese de fala)
+Para testar o projeto na sua própria máquina, siga os passos abaixo:
 
-- [Flask-SocketIO](https://flask-socketio.readthedocs.io/en/latest/) (Comunicação em tempo real)
-## Instalação
+#### 1\. Pré-requisitos
 
-Instale flask_chat com pip
+  * Ter o Python 3 instalado na sua máquina.
+  * Ter o `git` instalado para clonar o repositório.
+
+#### 2\. Clone o Repositório
 
 ```sh
-    # Clone o repositório
-    git clone https://github.com/TheoMGtech/chat-gabarito.git
-    cd chat-gabarito
-
-    # Crie um ambiente virtual 
-    python -m venv venv
-    source venv\Scripts\activate
-
-    # Instale as dependências
-    pip install -r requirements.txt
-
+git clone https://github.com/seu-usuario/seu-repositorio.git
+cd seu-repositorio/chat-gabarito/flask_chat
 ```
-    
-## Execução
 
-```bash
-    # Inicie o servidor Flask
-    python app.py # Ou flask run 
+#### 3\. Crie e Ative o Ambiente Virtual (`venv`)
+
+É uma boa prática usar um ambiente virtual para isolar as dependências do projeto.
+
+```sh
+# Cria a pasta .venv
+python -m venv venv
+
+# Ativa o ambiente no Windows
+venv\Scripts\activate
+
+# Ativa o ambiente no macOS ou Linux
+source venv/bin/activate
 ```
-## Como funciona
-1. O usuário se conecta a um atendente ou usuário através da interface de chat.
 
-2. Quando digita `#Chat` dentro da área do usuário, seguido de uma pergunta, a mensagem é redirecionada para a IA Gemini via `LangChain`.
+#### 4\. Instale as Dependências
 
-3. A resposta é avaliada ou corrigida por um módulo de Juiz.
+Com o ambiente ativado, instale todas as bibliotecas necessárias.
 
-4. Se o usuário clicar em "Ativar Áudio", a resposta é convertida em áudio com `pyttsx3` e enviada em tempo real via socketio.
-## Melhorias 📌
-- Adicionar sistema de login/autenticação
+```sh
+pip install -r requirements.txt
+```
 
-- Melhorar a interface com frameworks de frontend
+#### 5\. Configure suas Chaves de API
 
-- Suporte a múltiplos idiomas
+Para a mágica da IA e do áudio acontecer, você precisa de credenciais do Google.
 
-- Implantação em nuvem (ex: Render, Railway, ou Heroku)
-## Autores
+  * **Crie um arquivo `.env`**: Na pasta `chat-gabarito/flask_chat`, crie um arquivo com o nome `.env`.
+  * **Adicione a Chave do Gemini**: Dentro do arquivo `.env`, adicione a seguinte linha, substituindo `SUA_CHAVE_API_AQUI` pela sua chave obtida no [Google AI Studio](https://aistudio.google.com/app/apikey).
+    ```
+    GEMINI_API_KEY=SUA_CHAVE_API_AQUI
+    ```
+  * **Configure a Chave do Text-to-Speech**:
+      * Siga o passo a passo da API do Google Cloud Text-to-Speech (que fizemos anteriormente) para baixar o arquivo de credencial `.json`.
+      * Salve este arquivo `.json` em um local seguro no seu computador.
+      * Configure uma variável de ambiente no seu sistema chamada `GOOGLE_APPLICATION_CREDENTIALS` que aponte para o caminho completo desse arquivo `.json`.
 
-- [@TheoMGtech](https://github.com/TheoMGtech)
-- [@isaacnewthon-tech](https://github.com/isaacnewton-tech)
-- [@hallisonamorim](https://github.com/hallisonamorim)
-- [@gigerminare](https://github.com/gigerminare)
-- [@ruan-lourenco](https://github.com/ruan-lourenco)
+#### 6\. Rode a Aplicação
 
+Com tudo configurado, inicie o servidor Flask.
 
+```sh
+python chatmain.py
+```
 
+Abra seu navegador e acesse `http://127.0.0.1:5000` para ver a página inicial.
 
+## 👨‍💻 Equipe
 
-## Licença
-
-[MIT](https://choosealicense.com/licenses/mit/)
-
+  * Giovanna Andrade Vicentim
+  * Hállison Vinicius Vieira Amorim
+  * Isaac Maifrino Dias
+  * Ruan Pelegrini Lourenço
+  * Theo Correia Martins
