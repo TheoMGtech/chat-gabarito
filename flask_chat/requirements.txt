@@ -16,5 +16,5 @@ google-generativeai==0.3.2
 langchain_google_genai
 langchain
 gTTS
-
+gunicorn
 
