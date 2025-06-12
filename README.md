@@ -1,6 +1,6 @@
 # 💬 Chat com Assistente de IA
 
-E aí\! Este é um projeto de chat que desenvolvemos para o 2º ano do nosso curso técnico em Desenvolvimento de Sistemas. A aplicação simula uma conversa em tempo real entre um **usuário** e um **atendente**, mas com um toque especial: uma Inteligência Artificial (Google Gemini) que pode entrar na conversa para tirar dúvidas, gerar respostas em áudio e ter suas próprias respostas avaliadas por um "Juiz" de IA.
+E aí\! Este é um projeto de chat que desenvolvemos para o 2º ano do nosso curso técnico em Análise de Dados & Desenvolvimento de Sistemas (com foco em Dados e IA's). A aplicação simula uma conversa em tempo real entre um **usuário** e um **atendente**, mas com um toque especial: uma Inteligência Artificial (Google Gemini) que pode entrar na conversa para tirar dúvidas, gerar respostas em áudio e ter suas próprias respostas avaliadas por um "Juiz" de IA.
 
 ## 🚀 Teste ao Vivo
 
