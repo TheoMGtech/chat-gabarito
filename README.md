@@ -25,12 +25,12 @@ Este projeto é um aplicativo web desenvolvido com Flask, LangChain e a API grat
 - [Flask-SocketIO](https://flask-socketio.readthedocs.io/en/latest/) (Comunicação em tempo real)
 ## Instalação
 
-Instale flask-chat com pip
+Instale flask_chat com pip
 
 ```sh
     # Clone o repositório
-    git clone https://github.com/seu-usuario/seu-repositorio.git
-    cd seu-repositorio
+    git clone https://github.com/TheoMGtech/chat-gabarito.git
+    cd chat-gabarito
 
     # Crie um ambiente virtual 
     python -m venv venv
