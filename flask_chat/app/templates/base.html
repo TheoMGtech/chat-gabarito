@@ -15,11 +15,13 @@
 
         {% block formulario %}
         <form id="chat-form">
-            {% if role == 'usuario' %}
             <input type="hidden" name="ia_enabled" id="ia_enabled" value="off">
             <input type="hidden" name="audio_enabled" id="audio_enabled" value="off">
             <input type="hidden" name="judge_enabled" id="judge_enabled" value="off">
+            
+            <input type="file" id="imagem-input" name="imagem" accept="image/*" multiple style="display:none;">
 
+            {% if role == 'usuario' %}
             <div class="toggle-controls">
                 <button type="button" id="toggle-ia" class="toggle-button" title="Responder com IA">
                     <svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Gemini</title><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12"></path></svg>
@@ -35,9 +37,15 @@
                 </button>
             </div>
             {% endif %}
+            
+            <div id="preview-container"></div>
 
             <div class="message-bar">
-                <input type="text" name="mensagem" id="campoMensagem" placeholder="Digite sua mensagem" required>
+                <button type="button" id="anexar-btn" class="toggle-button" title="Anexar Imagem ou Tirar Foto">
+                    <svg class="icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M21.41 5.34l-3.75-3.75a2 2 0 00-2.83 0L3.34 13.08a2 2 0 000 2.83l3.75 3.75a2 2 0 002.83 0L21.41 8.17a2 2 0 000-2.83zM10 16.5l-4-4 1.41-1.41L10 13.67l6.59-6.59L18 8.5l-8 8z"/></svg>
+                </button>
+
+                <input type="text" name="mensagem" id="campoMensagem" placeholder="Digite sua mensagem">
                 <div class="button-group">
                     <button type="submit" name="enviar">Enviar</button>
                     <button type="button" id="encerrar-btn" name="encerrar">Encerrar</button>
@@ -52,6 +60,7 @@
     </script>
 
     <script>
+        // --- FUNÇÕES AUXILIARES ---
         function formatMessage(message) {
             const viewerRole = document.body.dataset.role;
             const regex = /\[(.*?)\] \[(.*?)\] (.*)/s;
@@ -61,32 +70,35 @@
                 const timestamp = match[1];
                 const sender = match[2];
                 let content = match[3];
-                let senderClass = '';
-
-                // --- INÍCIO DA ALTERAÇÃO ---
-                // Adicionada a condição para o atendente ver a mensagem da IA como sua.
-                if (
-                    (viewerRole === 'usuario' && sender === 'USUÁRIO') ||
-                    (viewerRole === 'atendente' && sender === 'ATENDENTE') ||
-                    (viewerRole === 'atendente' && sender === 'GEMINI') 
-                ) {
-                    senderClass = 'user-message'; // Mensagens na direita (próprias)
-                } 
-                // --- FIM DA ALTERAÇÃO ---
                 
-                else if (sender === 'SISTEMA' || sender === 'JUIZ') {
+                // Regex para encontrar TODAS as tags de imagem
+                const imgRegex = /\[IMAGEM:(.*?)\]/gi;
+                let imgContainer = '';
+                let result;
+                while ((result = imgRegex.exec(content)) !== null) {
+                    const imgUrl = result[1];
+                    imgContainer += `<img src="${imgUrl}" alt="Imagem Anexada" class="chat-image">`;
+                }
+                // Remove as tags de imagem do conteúdo de texto
+                content = content.replace(imgRegex, '').replace(/<br>/g, ' ').trim();
+
+                let senderClass = '';
+                if ((viewerRole === 'usuario' && sender === 'USUÁRIO') || (viewerRole === 'atendente' && (sender === 'ATENDENTE' || sender === 'GEMINI'))) {
+                    senderClass = 'user-message';
+                } else if (sender === 'SISTEMA' || sender === 'JUIZ') {
                     senderClass = 'system-message';
                 } else {
-                    senderClass = 'attendant-message'; // Mensagens na esquerda (dos outros)
+                    senderClass = 'attendant-message';
                 }
 
                 let aiMarker = '';
                 if (sender === 'GEMINI') {
-                    aiMarker = `<div class="ai-marker">Gerado com IA <svg fill="currentColor" fill-rule="evenodd" height="1em" style="flex:none;line-height:1" viewBox="0 0 24 24" width="1em" xmlns="http://www.w3.org/2000/svg"><title>Gemini</title><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12"></path></svg></div>`;
+                    aiMarker = `<div class="ai-marker">Gerado com IA <svg fill="currentColor" fill-rule="evenodd" height="1em" viewBox="0 0 24 24" width="1em"><title>Gemini</title><path d="M12 24A14.304 14.304 0 000 12 14.304 14.304 0 0012 0a14.305 14.305 0 0012 12 14.305 14.305 0 00-12 12"></path></svg></div>`;
                 }
-
+                
                 return `<div class="message ${senderClass}">
-                            <div>${content}</div>
+                            <div class="image-container">${imgContainer}</div>
+                            ${content ? `<div>${content}</div>` : ''}
                             ${aiMarker}
                             <span class="timestamp">${timestamp}</span>
                         </div>`;
@@ -100,38 +112,88 @@
                 audioElement.play().catch(e => console.error("Erro ao tocar áudio:", e));
             }
         }
-
+        
+        // --- LÓGICA PRINCIPAL ---
         document.addEventListener("DOMContentLoaded", function() {
-            let historicoArray = [];
-            try {
-                const historicoDataElement = document.getElementById('historico-data');
-                const historicoJSON = historicoDataElement.textContent;
-                historicoArray = JSON.parse(historicoJSON);
-            } catch (e) {
-                console.error("Falha crítica ao carregar dados do histórico:", e);
-            }
-            
+            // Variáveis Globais do Chat
+            let attachedFiles = []; // Armazena os arquivos para envio
+            const postUrl = "{{ post_url }}";
+
+            // Seletores de Elementos
             const historicoDiv = document.getElementById("historico");
             const campoMensagem = document.getElementById("campoMensagem");
             const chatForm = document.getElementById("chat-form");
             const encerrarBtn = document.getElementById("encerrar-btn");
-            const postUrl = "{{ post_url }}";
+            const anexarBtn = document.getElementById("anexar-btn");
+            const imagemInput = document.getElementById("imagem-input");
+            const previewContainer = document.getElementById("preview-container");
 
-            if (historicoArray && Array.isArray(historicoArray)) {
-                historicoDiv.innerHTML = historicoArray.map(formatMessage).join('');
-                historicoDiv.scrollTop = historicoDiv.scrollHeight;
-            }
+            // Carregar Histórico Inicial
+            try {
+                const historicoData = JSON.parse(document.getElementById('historico-data').textContent);
+                if (historicoData && Array.isArray(historicoData)) {
+                    historicoDiv.innerHTML = historicoData.map(formatMessage).join('');
+                    historicoDiv.scrollTop = historicoDiv.scrollHeight;
+                }
+            } catch (e) { console.error("Falha ao carregar histórico:", e); }
 
             campoMensagem.focus();
 
+            // Função para atualizar o preview de imagens
+            const updateImagePreview = () => {
+                previewContainer.innerHTML = '';
+                attachedFiles.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const previewWrapper = document.createElement('div');
+                        previewWrapper.className = 'preview-image-wrapper';
+                        previewWrapper.innerHTML = `<img src="${e.target.result}" class="preview-image"><button type="button" class="remove-image-btn" data-index="${index}">&times;</button>`;
+                        previewContainer.appendChild(previewWrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+                previewContainer.style.display = attachedFiles.length > 0 ? 'flex' : 'none';
+            };
+
+            // Event Listener para o botão de Anexar
+            anexarBtn.addEventListener("click", () => {
+                imagemInput.click();
+            });
+
+            // Event Listener para a seleção de arquivos
+            imagemInput.addEventListener("change", () => {
+                if (imagemInput.files.length > 0) {
+                    attachedFiles.push(...Array.from(imagemInput.files));
+                    updateImagePreview();
+                }
+                imagemInput.value = ''; // Limpa o input para permitir selecionar o mesmo arquivo novamente
+            });
+
+            // Event Listener para remover imagem do preview
+            previewContainer.addEventListener('click', (e) => {
+                if (e.target && e.target.classList.contains('remove-image-btn')) {
+                    const indexToRemove = parseInt(e.target.dataset.index, 10);
+                    attachedFiles.splice(indexToRemove, 1);
+                    updateImagePreview();
+                }
+            });
+
+            // Event Listener para o envio do formulário
             chatForm.addEventListener("submit", function(event) {
                 event.preventDefault();
-                if (!campoMensagem.value.trim()) return;
-                const formData = new FormData(chatForm);
-                fetch(postUrl, {
-                    method: "POST",
-                    body: formData
-                })
+                if (!campoMensagem.value.trim() && attachedFiles.length === 0) return;
+
+                const formData = new FormData();
+                formData.append('mensagem', campoMensagem.value);
+                formData.append('ia_enabled', document.getElementById('ia_enabled').value);
+                formData.append('audio_enabled', document.getElementById('audio_enabled').value);
+                formData.append('judge_enabled', document.getElementById('judge_enabled').value);
+
+                attachedFiles.forEach(file => {
+                    formData.append('imagens', file); // Envia como um array de 'imagens'
+                });
+
+                fetch(postUrl, { method: "POST", body: formData })
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === "success" && data.audio_base64) {
@@ -139,21 +201,22 @@
                     }
                 })
                 .catch(error => console.error("Erro na requisição:", error));
+
+                // Limpar campos após o envio
                 campoMensagem.value = "";
+                attachedFiles = [];
+                updateImagePreview();
                 campoMensagem.focus();
             });
 
-            encerrarBtn.addEventListener("click", function() {
+            // Lógica de encerramento
+            encerrarBtn.addEventListener("click", () => {
                 fetch("{{ url_for('chat.encerrar_sessao') }}")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === "success") {
-                        alert("Sessão encerrada. Esta janela será fechada.");
-                        window.close();
-                    }
-                });
+                .then(r => r.json())
+                .then(d => { if(d.status === 'success') { alert("Sessão encerrada."); window.close(); }});
             });
 
+            // WebSocket para novas mensagens
             const socket = io();
             socket.on("nova_mensagem", data => {
                 const novaLinhaHTML = formatMessage(data.html);
@@ -163,38 +226,48 @@
                 }
             });
 
+            // Lógica dos Toggles do Usuário
             if(document.body.dataset.role === 'usuario') {
                 const toggleIaButton = document.getElementById("toggle-ia");
                 const iaEnabledInput = document.getElementById("ia_enabled");
-                const toggleAudioButton = document.getElementById("toggle-audio");
-                const audioEnabledInput = document.getElementById("audio_enabled");
-                const toggleJudgeButton = document.getElementById("toggle-judge");
-                const judgeEnabledInput = document.getElementById("judge_enabled");
                 
+                const configurarModoAnexo = (iaAtivada) => {
+                    if (iaAtivada) {
+                        imagemInput.removeAttribute('capture');
+                        anexarBtn.title = "Anexar Imagem para IA";
+                    } else {
+                        imagemInput.setAttribute('capture', 'environment');
+                        anexarBtn.title = "Tirar Foto";
+                    }
+                };
+                
+                configurarModoAnexo(iaEnabledInput.value === 'on');
+
                 toggleIaButton.addEventListener("click", () => {
                     const isIaOn = toggleIaButton.classList.toggle("active");
                     iaEnabledInput.value = isIaOn ? "on" : "off";
-                    toggleAudioButton.disabled = !isIaOn;
-                    toggleJudgeButton.disabled = !isIaOn;
+                    document.getElementById("toggle-audio").disabled = !isIaOn;
+                    document.getElementById("toggle-judge").disabled = !isIaOn;
                     if (!isIaOn) {
-                        toggleAudioButton.classList.remove("active");
-                        audioEnabledInput.value = "off";
-                        toggleJudgeButton.classList.remove("active");
-                        judgeEnabledInput.value = "off";
+                        document.getElementById("toggle-audio").classList.remove("active");
+                        document.getElementById("audio_enabled").value = "off";
+                        document.getElementById("toggle-judge").classList.remove("active");
+                        document.getElementById("judge_enabled").value = "off";
+                    }
+                    configurarModoAnexo(isIaOn);
+                });
+
+                document.getElementById("toggle-audio").addEventListener("click", (e) => {
+                    if (!e.currentTarget.disabled) {
+                        const isActive = e.currentTarget.classList.toggle("active");
+                        document.getElementById("audio_enabled").value = isActive ? "on" : "off";
                     }
                 });
 
-                toggleAudioButton.addEventListener("click", () => {
-                    if (!toggleAudioButton.disabled) {
-                        toggleAudioButton.classList.toggle("active");
-                        audioEnabledInput.value = toggleAudioButton.classList.contains("active") ? "on" : "off";
-                    }
-                });
-
-                toggleJudgeButton.addEventListener("click", () => {
-                    if (!toggleJudgeButton.disabled) {
-                        toggleJudgeButton.classList.toggle("active");
-                        judgeEnabledInput.value = toggleJudgeButton.classList.contains("active") ? "on" : "off";
+                document.getElementById("toggle-judge").addEventListener("click", (e) => {
+                    if (!e.currentTarget.disabled) {
+                        const isActive = e.currentTarget.classList.toggle("active");
+                        document.getElementById("judge_enabled").value = isActive ? "on" : "off";
                     }
                 });
             }

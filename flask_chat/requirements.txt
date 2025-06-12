@@ -10,11 +10,12 @@ python-dotenv==1.0.1
 # eventlet: servidor assíncrono necessário para suportar WebSocket com Flask-SocketIO
 eventlet==0.35.1
 
-# google-generativeai: biblioteca cliente oficial para acessar a API do Gemini
-google-generativeai==0.3.2
+# --- BIBLIOTECAS ATUALIZADAS E CORRIGIDAS ---
+google-generativeai==0.5.4
+langchain==0.2.1
+langchain-google-genai==1.0.5
+Pillow==10.3.0
+# --- FIM DAS ATUALIZAÇÕES ---
 
-langchain_google_genai
-langchain
 gTTS
 gunicorn
-

@@ -287,3 +287,82 @@ form {
 .ai-marker svg {
     color: #1a73e8;
 }
+
+/* Estilo para imagens no chat */
+.chat-image {
+  max-width: 100%;
+  border-radius: 15px;
+  margin-bottom: 8px; /* Espaço entre a imagem e o texto */
+  display: block;
+}
+
+/* Ajuste no botão de anexo */
+#anexar-btn {
+  margin-right: 10px; /* Espaço entre o botão de anexo e a caixa de texto */
+  background-color: #6c757d;
+}
+
+#anexar-btn:hover {
+  background-color: #5a6268;
+}
+
+/* Estilos para o contêiner de preview */
+#preview-container {
+  display: none; /* Começa escondido */
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f0f0f0;
+}
+
+.preview-image-wrapper {
+  position: relative;
+  width: 70px;
+  height: 70px;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.remove-image-btn {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 20px;
+  text-align: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.image-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 5px;
+}
+
+.chat-image {
+  max-width: 150px; /* Tamanho máximo para imagens no histórico */
+  height: auto;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.chat-image:hover {
+    transform: scale(1.5);
+}
