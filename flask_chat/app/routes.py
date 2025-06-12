@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, jsonify, url_for
 from datetime import datetime
 from app import socketio
 import os
+import traceback  # Importa a biblioteca para rastreamento de erros
 from app.gemini.modelo import responder_pergunta, avaliar_resposta, gerar_audio_base64
 
 bp = Blueprint("chat", __name__)
@@ -37,7 +38,6 @@ def usuario():
     if "chat_id" not in session:
         session["chat_id"] = datetime.now().strftime("%Y%m%d-%H%M%S")
         registrar_log("SISTEMA", f"=== Início da Sessão {session['chat_id']} ===", session["chat_id"])
-    
     historico = carregar_historico()
     return render_template("usuario.html", 
                            historico=historico, 
@@ -48,12 +48,8 @@ def usuario():
 @bp.route("/atendente", methods=["GET"])
 def atendente():
     if "chat_id" not in session:
-        # Se não houver sessão, o atendente não tem a quem atender.
-        # Poderíamos redirecionar ou mostrar uma mensagem.
-        # Por enquanto, vamos criar uma sessão para demonstração.
         session["chat_id"] = datetime.now().strftime("%Y%m%d-%H%M%S")
         registrar_log("SISTEMA", f"=== Início da Sessão {session['chat_id']} ===", session["chat_id"])
-
     historico = carregar_historico()
     return render_template("atendente.html", 
                            historico=historico, 
@@ -63,51 +59,61 @@ def atendente():
 
 @bp.route("/send_message", methods=["POST"])
 def send_message():
-    # Rota para mensagens enviadas pelo USUÁRIO
-    msg = request.form.get("mensagem", "")
-    if not msg.strip():
-        return jsonify({"status": "error", "message": "Mensagem vazia"}), 400
+    try:
+        msg = request.form.get("mensagem", "")
+        if not msg.strip():
+            return jsonify({"status": "error", "message": "Mensagem vazia"}), 400
 
-    chat_id = session.get("chat_id")
-    if not chat_id:
-        return jsonify({"status": "error", "message": "Sessão não encontrada"}), 400
+        chat_id = session.get("chat_id")
+        if not chat_id:
+            return jsonify({"status": "error", "message": "Sessão não encontrada"}), 400
 
-    registrar_log("USUÁRIO", msg, chat_id)
+        registrar_log("USUÁRIO", msg, chat_id)
 
-    ia_enabled = request.form.get('ia_enabled') == 'on'
-    audio_enabled = request.form.get('audio_enabled') == 'on'
-    judge_enabled = request.form.get('judge_enabled') == 'on'
-    audio_base64 = None
+        ia_enabled = request.form.get('ia_enabled') == 'on'
+        audio_enabled = request.form.get('audio_enabled') == 'on'
+        judge_enabled = request.form.get('judge_enabled') == 'on'
+        audio_base64 = None
 
-    if ia_enabled:
-        resposta = responder_pergunta(msg)
-        if judge_enabled:
-            resposta_juiz = avaliar_resposta(msg, resposta)
-            registrar_log("JUIZ", resposta_juiz, chat_id)
-            if "Aprovado" in resposta_juiz:
+        if ia_enabled:
+            resposta = responder_pergunta(msg)
+            if judge_enabled:
+                resposta_juiz = avaliar_resposta(msg, resposta)
+                registrar_log("JUIZ", resposta_juiz, chat_id)
+                if "Aprovado" in resposta_juiz:
+                    registrar_log("GEMINI", resposta, chat_id)
+                    if audio_enabled:
+                        audio_base64 = gerar_audio_base64(resposta)
+            else:
                 registrar_log("GEMINI", resposta, chat_id)
                 if audio_enabled:
                     audio_base64 = gerar_audio_base64(resposta)
-        else:
-            registrar_log("GEMINI", resposta, chat_id)
-            if audio_enabled:
-                audio_base64 = gerar_audio_base64(resposta)
 
-    return jsonify({"status": "success", "audio_base64": audio_base64})
+        return jsonify({"status": "success", "audio_base64": audio_base64})
+    except Exception as e:
+        # Imprime o erro completo nos logs do Render para depuração
+        print(f"!!! ERRO NA ROTA /send_message: {e}")
+        traceback.print_exc()
+        # Retorna um JSON de erro para o frontend não quebrar
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @bp.route("/send_attendant_message", methods=["POST"])
 def send_attendant_message():
-    # Rota para mensagens enviadas pelo ATENDENTE
-    msg = request.form.get("mensagem", "")
-    if not msg.strip():
-        return jsonify({"status": "error", "message": "Mensagem vazia"}), 400
-    
-    chat_id = session.get("chat_id")
-    if not chat_id:
-        return jsonify({"status": "error", "message": "Sessão não encontrada"}), 400
+    try:
+        msg = request.form.get("mensagem", "")
+        if not msg.strip():
+            return jsonify({"status": "error", "message": "Mensagem vazia"}), 400
         
-    registrar_log("ATENDENTE", msg, chat_id)
-    return jsonify({"status": "success"})
+        chat_id = session.get("chat_id")
+        if not chat_id:
+            return jsonify({"status": "error", "message": "Sessão não encontrada"}), 400
+            
+        registrar_log("ATENDENTE", msg, chat_id)
+        return jsonify({"status": "success"})
+    except Exception as e:
+        print(f"!!! ERRO NA ROTA /send_attendant_message: {e}")
+        traceback.print_exc()
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @bp.route("/encerrar_sessao")
 def encerrar_sessao():
