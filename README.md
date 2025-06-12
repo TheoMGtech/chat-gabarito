@@ -22,7 +22,7 @@ Acesse a versão da aplicação publicada no Render:
   * **Inteligência Artificial**: LangChain com Google Gemini
   * **Conversão de Texto em Áudio**: Google Cloud Text-to-Speech API
   * **Frontend**: HTML, CSS, JavaScript
-  * **Deploy**: Render, Gunicorn, Docker
+  * **Deploy**: Render, Gunicorn
 
 ## 💻 Como Rodar o Projeto Localmente
 
