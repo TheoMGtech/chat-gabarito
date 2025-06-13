@@ -287,3 +287,65 @@ form {
 .ai-marker svg {
     color: #1a73e8;
 }
+
+/* ============================================= */
+/* MELHORIAS DE USABILIDADE MOBILE      */
+/* ============================================= */
+@media (max-width: 768px) {
+
+    /* --- 1. Botões da Página Inicial (welcome-container) --- */
+    .welcome-container .button-group {
+        flex-direction: column;
+        width: 100%;
+        gap: 15px; /* Espaçamento entre os botões */
+    }
+
+    .welcome-container button {
+        width: 100%;
+        padding: 18px; /* Aumenta a área de toque vertical */
+        font-size: 1.1em;
+        box-sizing: border-box; /* Garante que o padding não quebre o layout */
+    }
+
+    /* --- 2. Botões do Formulário de Chat --- */
+    
+    /* Agrupamento dos botões de Ação (Enviar/Encerrar) */
+    .message-bar .button-group {
+        display: flex;
+        flex-basis: 100%; /* Faz o grupo de botões ocupar toda a largura */
+        gap: 10px;
+    }
+
+    .message-bar .button-group button {
+        flex: 1; /* Distribui o espaço igualmente entre os botões */
+        padding: 12px; /* Aumenta a área de toque */
+    }
+    
+    /* Reorganiza a barra de mensagem para empilhar os elementos */
+    .message-bar {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .message-bar input[type="text"] {
+        margin-right: 0; /* Remove a margem que só faz sentido no desktop */
+    }
+
+    /* --- 3. Botões de Toggle (IA, Áudio, Juiz) --- */
+    .toggle-controls {
+        flex-wrap: wrap; /* Permite que os botões quebrem para a próxima linha */
+        gap: 8px; /* Garante um espaçamento consistente */
+    }
+
+    .toggle-button {
+        flex-grow: 1; /* Permite que os botões cresçam e ocupem o espaço */
+        justify-content: center; /* Centraliza o conteúdo do botão (ícone e texto) */
+        padding: 12px 10px;
+    }
+    
+    /* Remove o alinhamento à direita do botão Juiz para um layout mais fluido */
+    #toggle-judge {
+        margin-left: 0;
+    }
+}
