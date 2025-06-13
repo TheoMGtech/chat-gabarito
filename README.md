@@ -89,8 +89,8 @@ Abra seu navegador e acesse `http://127.0.0.1:5000` para ver a página inicial.
 
 ## 👨‍💻 Equipe
 
-  * Giovanna Andrade Vicentim
-  * Hállison Vinicius Vieira Amorim
-  * Isaac Maifrino Dias
-  * Ruan Pelegrini Lourenço
-  * Theo Correia Martins
+- [Giovanna Andrade Vicentim](https://github.com/gigerminare)
+- [Hállison Vinicius Vieira Amorim](https://github.com/hallisonamorim)
+- [Isaac Maifrino Dias](https://github.com/isaacnewton-tech)
+- [Ruan Pelegrini Lourenço](https://github.com/ruan-lourenco)
+- [Theo Correia Martins](https://github.com/TheoMGtech)
